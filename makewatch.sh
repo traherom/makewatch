@@ -45,6 +45,10 @@ then
 	exit 1
 fi
 
+# Move to directory with files we're watching (assume the first one is where the makefile is)
+cd `dirname $1`
+
+# And monitor
 while true
 do
 	make
