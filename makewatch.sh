@@ -39,19 +39,34 @@ then
 	echo $0 is ready to run!
 fi
 
+# Was a special target given for make?
+TARGET=""
+if [[ "$1" == "-t" ]]
+then
+	TARGET=$2
+	
+	echo Using make target $TARGET
+	
+	shift
+	shift
+fi
+
+# Files were given to watch, right?
 if [[ $# == 0 ]]
 then
-	echo Usage: $0 \<file\> \[\<file\> ...\]
+	echo Usage: $0 '[-t <maketarget>] <file> [<file> ...]'
 	exit 1
 fi
 
 # Move to directory with files we're watching (assume the first one is where the makefile is)
 cd `dirname $1`
+echo Running make in `pwd`
 
 # And monitor
 while true
 do
-	make
+	make $TARGET
+
 	echo Waiting for changes to $@
 	sleep 1
 	"$WAITCMD" "$@"
