@@ -1,42 +1,54 @@
 #!/bin/bash
-# Locate kqwait
-# In path?
-WAITCMD=kqwait
-if ! $(command -v $WAITCMD 2>/dev/null >&2)
+# On OSX we use kqwait, on Linux we use inotify
+if [ $(uname) == "Darwin" ]
 then
-	WAITCMD=./kqwait
-fi
+	# Locate kqwait
+	# In path?
+	WAITCMD=kqwait
+	if ! $(command -v $WAITCMD 2>/dev/null >&2)
+	then
+		WAITCMD=./kqwait
+	fi
 
-# Local directory?
-if ! $(command -v $WAITCMD 2>/dev/null >&2)
-then
-	# Not found, install it to the directory where makewatch is located
-	BASE=`dirname ${BASH_SOURCE[0]}`
-	echo Unable to find kqwait, installing to $BASE
+	# Local directory?
+	if ! $(command -v $WAITCMD 2>/dev/null >&2)
+	then
+		# Not found, install it to the directory where makewatch is located
+		BASE=`dirname ${BASH_SOURCE[0]}`
+		echo Unable to find kqwait, installing to $BASE
 
-	curDir=`pwd`
-	cd "$BASE"
+		curDir=`pwd`
+		cd "$BASE"
 
-	# Download and build it
-	echo Pulling kqwait
-	git clone https://github.com/sschober/kqwait.git tempbuild
-	
-	echo Building
-	cd tempbuild
-	make kqwait
+		# Download and build it
+		echo Pulling kqwait
+		git clone https://github.com/sschober/kqwait.git tempbuild
+		
+		echo Building
+		cd tempbuild
+		make kqwait
 
-	# Move exe back to where makewach actually is
-	echo Saving locally
-	mv kqwait ..
+		# Move exe back to where makewach actually is
+		echo Saving locally
+		mv kqwait ..
 
-	# Remove temp crap and switch back to the original director
-	echo Cleaning up
-	cd ..
-	rm -rf tempbuild
+		# Remove temp crap and switch back to the original director
+		echo Cleaning up
+		cd ..
+		rm -rf tempbuild
 
-	cd "$curDir"
+		cd "$curDir"
 
-	echo $0 is ready to run!
+		echo $0 is ready to run!
+	fi
+else
+	# In path?
+	WAITCMD=inotifywait
+	if ! $(command -v $WAITCMD 2>/dev/null >&2)
+	then
+		echo Please install inotifywait \(usually in your distribution\'s inotify-tools package\)
+		exit 1
+	fi
 fi
 
 # Was a special target given for make?
