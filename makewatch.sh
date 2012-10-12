@@ -43,7 +43,7 @@ then
 	fi
 else
 	# In path?
-	WAITCMD=inotifywait
+	WAITCMD="inotifywait -qq"
 	if ! $(command -v $WAITCMD 2>/dev/null >&2)
 	then
 		echo Please install inotifywait \(usually in your distribution\'s inotify-tools package\)
@@ -79,8 +79,8 @@ while true
 do
 	make $TARGET
 
+	sleep 2
 	echo Waiting for changes to $@
-	sleep 1
-	"$WAITCMD" "$@"
+	$WAITCMD "$@" >/dev/null
 done
 
